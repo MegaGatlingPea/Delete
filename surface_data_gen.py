@@ -1,6 +1,5 @@
 import sys
-sys.path.append('/home/haotian/molecules_confs/Protein_test/SurfBP')
-from dataset.masif.generate_prot_ply import compute_inp_surface
+from utils.masif.generate_prot_ply import compute_inp_surface
 import os.path as osp
 from glob import glob
 import argparse
