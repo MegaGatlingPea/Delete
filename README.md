@@ -11,7 +11,7 @@
 
 Install via conda .yml file (cuda 11.3)
 
-```
+```Shell
 conda install mamba
 mamba env create -f delete_environment.yml -n delete
 conda activate delete
@@ -45,6 +45,18 @@ Here, we provided the processed file in lmdb format.
 
 ## Train
 
+```python
+python delete_train.py --config ./configs/train_{}.yml 
+```
+
 
 
 ## Suggest novel structures
+
+```python
+python -u delete.py --surf_path ./example/1bxm/1bxm_0_pocket_8.0_res_1.5.ply --frag_path ./example/1bxm/1bxm_0_1_frag.sdf --check_point ./checkpoint/crossdock_val_159.pt --outdir ./outputs --suboutdir my_name 
+# main parameter: 
+# --surf_path: the provided surface file
+# --frag_path: the lead waiting for optimization
+```
+
