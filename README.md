@@ -1,4 +1,4 @@
-# :ghost:Delete
+# :ghost:Delete: Deep Lead Optimization Enveloped in Protein Pockets through Deleting Strategy combined with a structure-aware network 
 **Delete**: **D**eep **Le**ad Op**t**imization **E**nveloped in Protein Pocket through Deleting Strategy combined with a Structure-aware Network. 
 
 ——When you face some problems in drug discovery, just delete! 
