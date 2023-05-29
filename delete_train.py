@@ -19,8 +19,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='./configs/train_frag_moad.yml')
 parser.add_argument('--device', type=str, default='cuda')
 parser.add_argument('--logdir', type=str, default='./logs')
-parser.add_argument('--base_path', type=str, default='/home/haotian/molecules_confs/Protein_test/SurfGen')
-args = parser.parse_args([])
+
+args = parser.parse_args()
 
 config = load_config(args.config)
 config_name = os.path.basename(args.config)[:os.path.basename(args.config).rfind('.')]

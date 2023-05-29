@@ -33,3 +33,18 @@ Please remember to replace "my case" with your actual username or replace it dep
 
 ## Data
 
+There are two datasets used for training, one is CrossDock2020, another is BindingMoad. 
+
+If you want to process from scratch, please refer to the ./data/README.MD
+
+Here, we provided the processed file in lmdb format. 
+
+[CrossDock](https://doi.org/10.5281/zenodo.7980002) includes lmdb, lmdb-lock, name2id, split_by_name. 
+
+[BindingMoad](`https://doi.org/10.5281/zenodo.7980026`) includes lmdb, lmdb-lock, name2id, split_by_name. 
+
+## Train
+
+
+
+## Suggest novel structures
