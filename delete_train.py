@@ -4,26 +4,23 @@ import argparse
 from tqdm.auto import tqdm
 import torch
 from torch.nn.utils import clip_grad_norm_
-# import torch_geometric
-# assert not torch_geometric.__version__.startswith('2'), 'Please use torch_geometric lower than version 2.0.0'
 from torch_geometric.loader import DataLoader
 
-from models.surfgen import SurfGen
+from models.delete import Delete
 from utils.datasets import *
 from utils.transforms import *
 from utils.misc import *
 from utils.train import *
-from utils.datasets.surfdata import SurfGenDataset
 from time import time
 from utils.train import get_model_loss
 from utils.datasets.pl import SurfLigandPairDataset
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default='./configs/train_surflinker.yml')
+parser.add_argument('--config', type=str, default='./configs/train_frag_moad.yml')
 parser.add_argument('--device', type=str, default='cuda')
 parser.add_argument('--logdir', type=str, default='./logs')
 parser.add_argument('--base_path', type=str, default='/home/haotian/molecules_confs/Protein_test/SurfGen')
-args = parser.parse_args()
+args = parser.parse_args([])
 
 config = load_config(args.config)
 config_name = os.path.basename(args.config)[:os.path.basename(args.config).rfind('.')]
@@ -39,7 +36,7 @@ shutil.copyfile(args.config, os.path.join(log_dir, os.path.basename(args.config)
 shutil.copytree('./models', os.path.join(log_dir, 'models'))
 
 protein_featurizer = FeaturizeProteinAtom()
-ligand_featurizer = FeaturizeLigandAtom()
+ligand_featurizer = FeaturizeLigandAtom()                   
 masking = get_mask(config.train.transform.mask)
 composer = AtomComposer(protein_featurizer.feature_dim, ligand_featurizer.feature_dim, config.model.encoder.knn)
 
@@ -78,6 +75,8 @@ def get_dataset(config, *args, **kwargs):
     else:
         return dataset
 
+
+
 dataset, subsets = get_dataset(
     config = config.dataset,
     transform = transform,
@@ -85,11 +84,11 @@ dataset, subsets = get_dataset(
 
 train_set, val_set = subsets['train'], subsets['test']
 follow_batch = []
-collate_exclude_keys = ['ligand_nbh_list']
+  = ['ligand_nbh_list']
 val_loader = DataLoader(val_set, config.train.batch_size, shuffle=False, follow_batch=follow_batch, exclude_keys = collate_exclude_keys,)
 train_loader = DataLoader(train_set, config.train.batch_size, shuffle=False,  exclude_keys = collate_exclude_keys)
 
-model = SurfGen(
+model = Delete(
     config.model, 
     num_classes = contrastive_sampler.num_elements,
     num_bond_types = edge_sampler.num_bond_types,
@@ -97,7 +96,6 @@ model = SurfGen(
     ligand_atom_feature_dim = ligand_featurizer.feature_dim,
 ).to(args.device)
 print('Num of parameters is {0:.4}M'.format(np.sum([p.numel() for p in model.parameters()]) /100000 ))
-
 optimizer = get_optimizer(config.train.optimizer, model)
 scheduler = get_scheduler(config.train.scheduler, optimizer)
 
