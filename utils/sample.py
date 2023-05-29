@@ -127,6 +127,7 @@ def get_next(data, model, transform, threshold, frontier_threshold=0,freeze=None
 
 def logp_to_rank_prob(logp, weight=1.0):
 
+    logp = [list(p) + [-0.2] * (3 - len(p)) if len(p) != 3 else p for p in logp]  #padding
     logp_sum = np.array([np.sum(l) for l in logp])
     prob = np.exp(logp_sum) + 1
     prob = prob * np.array(weight)

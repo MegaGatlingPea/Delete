@@ -40,6 +40,8 @@ def combine_mols(mols):
     return ref_mol
     
 def Murcko_decompose(mol, visualize=False):
+    # The rdRGroupDecomposition may cause the kernel dumped in jupyter under the virtual environment
+    # I don't know why but it works well in another virtual environment with the same version of rdkit
     scaffold = MurckoScaffold.GetScaffoldForMol(mol)
     decompose = rdRGroupDecomposition.RGroupDecompose([scaffold], [mol])
     side_chains = []
@@ -57,8 +59,9 @@ def Murcko_decompose(mol, visualize=False):
 
     return scaffold, side_chains
 
-import scaffoldgraph as sg #pip install scaffoldgraph 
+
 def HeriS_scaffold(mol):
+    import scaffoldgraph as sg #pip install scaffoldgraph
     network = sg.HierS.from_sdf('example.sdf', progress=True)
     scaffold = list(network.get_scaffold_nodes())
     return scaffold
@@ -129,7 +132,7 @@ def transfer_coord(frag, mol):
     new_frag.AddConformer(frag_conformer)
     return new_frag
 
-def check_linker(fragmentation, verbose=False, linker_min=2,min_path_length=2,fragment_min=5):
+def check_linker(fragmentation, verbose=False, linker_min=2,min_path_length=2,fragment_min=2):
     linker, frags = fragmentation
     if type(linker) == str:
         linker = Chem.MolFromSmiles(linker)
@@ -156,10 +159,10 @@ def check_linker(fragmentation, verbose=False, linker_min=2,min_path_length=2,fr
         return False
     return True
 
-def check_linkers(fragmentations):
+def check_linkers(fragmentations,verbose=False):
     filter_fragmentations = []
     for fragmentation in fragmentations:
-        if check_linker(fragmentation):
+        if check_linker(fragmentation,verbose=verbose):
             filter_fragmentations.append(fragmentation)
     return filter_fragmentations
 

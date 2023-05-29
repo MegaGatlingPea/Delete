@@ -5,7 +5,7 @@ import os
 import torch
 from tqdm.auto import tqdm
 
-class SurfGenDataset(Dataset):
+class DeleteDataset(Dataset):
 
     def __init__(self, raw_path='./data/crossdocked_pocket10', transform=None):
         super().__init__()

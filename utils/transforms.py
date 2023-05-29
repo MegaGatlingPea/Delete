@@ -1,5 +1,4 @@
 import copy
-# from multiprocessing import context
 import os
 import sys
 sys.path.append('.')
@@ -7,7 +6,6 @@ import random
 import time
 import uuid
 from itertools import compress
-# from tqdm import tqdm
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -20,8 +18,7 @@ from torch_scatter import scatter_add
 from rdkit import Chem
 from rdkit.Chem import rdMMPA
 from scipy.spatial import distance_matrix
-# import multiprocessing as multi
-# from torch_geometric.data import DataLoader
+
 try:
     from .data import ProteinLigandData
     from .datasets import *
@@ -186,10 +183,7 @@ class LigandCountNeighbors(object):
 
 
 class LigandRandomMask(object):
-    '''
-    最少的掩蔽掉的原子应该是0
-    最少的存在的原子应该是
-    '''
+
     def __init__(self, min_ratio=0.0, max_ratio=1.2, min_num_masked=1, min_num_unmasked=0):
         super().__init__()
         self.min_ratio = min_ratio
@@ -535,7 +529,7 @@ class LigandMaskFrag(object):
                     raise ValueError('Side Chains decomposition is None')
                 masked_frag = scaffold
             
-            elif self.masker == 'leadopt':
+            elif self.masker == 'side_chain':
                 scaffold, side_chains = Murcko_decompose(mol)
                 if len(side_chains) == 0:
                     raise ValueError('Side Chains decomposition is None')
@@ -612,7 +606,7 @@ class LigandMaskFrag(object):
             print(e)
             masking = LigandRandomMask(min_ratio=0.0, max_ratio=1.1, min_num_masked=1, min_num_unmasked=0)
             masking(data)
-            data._mask = 'frag_failed'
+            data._mask = 'frag_decom_random'
         return data
 
 
@@ -645,6 +639,7 @@ class LigandMixedMaskLinker(object):
         self.p = [p_random, p_bfs, p_invbfs,p_linker]
 
     def __call__(self, data):
+        
         f = random.choices(self.t, k=1, weights=self.p)[0]
         return f(data)
      
@@ -683,17 +678,17 @@ class LigandMixedMaskScaffold(object):
         return f(data)
 
 
-class LigandMixedMaskLeadOpt(object):
+class LigandMixedMaskSideChain(object):
 
-    def __init__(self, min_ratio=0.0, max_ratio=1.2, min_num_masked=1, min_num_unmasked=0, p_random=0.3, p_bfs=0.2, p_invbfs=0.2, p_leadopt=0.3):
+    def __init__(self, min_ratio=0.0, max_ratio=1.2, min_num_masked=1, min_num_unmasked=0, p_random=0.3, p_bfs=0.2, p_invbfs=0.2, p_side_chain=0.3):
         super().__init__()
         self.t = [
             LigandRandomMask(min_ratio, max_ratio, min_num_masked, min_num_unmasked),
             LigandBFSMask(min_ratio, max_ratio, min_num_masked, min_num_unmasked, inverse=False),
             LigandBFSMask(min_ratio, max_ratio, min_num_masked, min_num_unmasked, inverse=True),
-            LigandMaskFrag(masker='leadopt')
+            LigandMaskFrag(masker='side_chain')
         ]
-        self.p = [p_random, p_bfs, p_invbfs, p_leadopt]
+        self.p = [p_random, p_bfs, p_invbfs, p_side_chain]
 
     def __call__(self, data):
         f = random.choices(self.t, k=1, weights=self.p)[0]
@@ -759,8 +754,8 @@ def get_mask(cfg):
             p_invbfs = cfg.p_invbfs,
             p_scaffold=cfg.p_scaffold
         )
-    elif cfg.type == 'leadopt':
-        return LigandMixedMaskLeadOpt(
+    elif cfg.type == 'side_chain':
+        return LigandMixedMaskSideChain(
             min_ratio=cfg.min_ratio, 
             max_ratio=cfg.max_ratio, 
             min_num_masked=cfg.min_num_masked,
@@ -768,7 +763,7 @@ def get_mask(cfg):
             p_random = cfg.p_random,
             p_bfs = cfg.p_bfs,
             p_invbfs = cfg.p_invbfs,
-            p_leadopt=cfg.p_leadopt
+            p_side_chain=cfg.p_side_chain
         )
     else:
         raise NotImplementedError('Unknown mask: %s' % cfg.type)

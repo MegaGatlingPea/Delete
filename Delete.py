@@ -1,5 +1,4 @@
-# on cluster
-# python -u surfgen_frgament_keeper_test.py --check_point ./ckpt_frag/crossdock_val_159.pt 
+# python -u delete.py --surf_path ./example/cb1/Gi_protein_pocket_8.0.ply --frag_path ./example/cb1/Gi_indole_del.sdf --check_point ./checkpoint/crossdock_val_159.pt --outdir ./outputs --suboutdir my_name --ligand_file ./example/cb1/Gi_lig.sdf --protein_file ./example/cb1Gi_protein_fix.pdb
 import os
 import argparse
 from glob import glob
@@ -20,8 +19,7 @@ from tqdm.auto import tqdm
 from utils.transforms import *
 from utils.misc import load_config
 from utils.reconstruct import *
-from utils.datasets.surfdata import SurfGenDataset
-from models.surfgen import SurfGen
+from models.delete import Delete
 
 from utils.sample import get_init, get_next, logp_to_rank_prob
 from utils.sample import STATUS_FINISHED, STATUS_RUNNING
@@ -113,9 +111,14 @@ parser.add_argument(
     '--frag_path', type=str,default='./example/1bxm/1bxm_0_1_frag.sdf',
     help='where the fragment you want to kept locates, format is .sdf'
 )
+
 parser.add_argument(
-    '--index_data', action='store',required=False,type=str,default=None,
-    help='on the cluster sometime it would trigger the error from rdkit file, so you can prepare data on your laptop and save it as pkl file'
+    '--ligand_file', action='store',required=False,type=str,default=None,
+    help='choose the original ligand file, just for transfering to the generated directory for comparison'
+)
+parser.add_argument(
+    '--protein_file', action='store',required=False,type=str,default=None,
+    help='choose the original protein file, just for transfering to the generated directory for comparison'
 )
 
 args = parser.parse_args()
@@ -139,7 +142,7 @@ masking = Compose([
     composer
 ])
 # model loading
-model = SurfGen(
+model = Delete(
     ckpt['config'].model, 
     num_classes = 7,
     num_bond_types = 3,
@@ -236,10 +239,13 @@ while len(pool.finished) < config.sample.num_samples:
                 nexts.append(data_next)
 
         queue_tmp += nexts
-    prob = logp_to_rank_prob(np.array([p.average_logp[2:] for p in queue_tmp]),)  # (logp_focal, logpdf_pos), logp_element, logp_hasatom, logp_bond
+    prob = logp_to_rank_prob([p.average_logp[2:] for p in queue_tmp],)  # (logp_focal, logpdf_pos), logp_element, logp_hasatom, logp_bond
     n_tmp = len(queue_tmp)
     if n_tmp == 0:
-        print('failures!')
+        if len(pool.finished) == 0:
+            print('Failure!')
+        else: 
+            print('Finish!')
         break
     else:
         next_idx = np.random.choice(np.arange(n_tmp), p=prob, size=min(config.sample.beam_size, n_tmp), replace=False)
@@ -247,8 +253,12 @@ while len(pool.finished) < config.sample.num_samples:
 try:
     ckpt_name = args.check_point.split('/')[-1][:-3]
     out_dir = osp.join(args.outdir,frag_fn)
+    
+    if args.suboutdir is not None:
+        out_dir = osp.join(args.outdir,args.suboutdir)
+
     os.makedirs(out_dir, exist_ok=True)
-    sdf_name = frag_fn[:-3] + f'_{ckpt_name}_.sdf'
+    sdf_name = frag_fn[:-3] + f'_{ckpt_name}.sdf'
     sdf_file = os.path.join(out_dir,sdf_name)
     writer = Chem.SDWriter(sdf_file)
     for j in range(len(pool['finished'])):
@@ -261,9 +271,15 @@ try:
         writer = Chem.SDWriter(os.path.join(SDF_dir,f'{j}.sdf'))
         writer.write(pool['finished'][j].rdmol)
     writer.close()
+    if args.protein_file is not None:
+        shutil.copy(args.surf_path,out_dir)
+    if args.ligand_file is not None:
+        shutil.copy(args.ligand_file,out_dir)
 except:
     print('write the generated mols failed')
 try:
     shutil.copy(args.surf_path,out_dir)
-except:
-    ...
+except Exception as e:
+    print(e)
+
+print('Thanks to use Delete! When you face lead optimization, just Delete!')
