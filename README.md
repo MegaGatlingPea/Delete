@@ -5,6 +5,7 @@
 <img src="./assets/toc.png" width="80%" height="80%" alt="TOC" align=center />
 </div>
 
+
 ## Environment
 
 ### First Approach
@@ -31,6 +32,21 @@ conda activate delete
 
 Please remember to replace "my case" with your actual username or replace it depending on your requirements.
 
+
+
+## Suggest novel structures
+
+I have provided an example to suggest new structures using adbr1 example, use this command to generate 3D molecules given the protein and lead fragment! 
+
+```python
+python -u delete.py --surf_path ./example/adrb1/adrb_pocket_8.0.ply --frag_path ./example/adrb1/2VT4_frag.sdf --check_point ./checkpoint/ckpt/delete.pt --outdir ./outputs --suboutdir adrb1
+# main parameters: 
+# --surf_path: the provided surface file
+# --frag_path: the lead waiting for optimization
+```
+
+太tnnd牛逼了，都给我用，狠狠用
+
 ## Data
 
 There are two datasets used for training, one is CrossDock2020, another is BindingMoad. 
@@ -41,18 +57,7 @@ Here, we provided the processed file in lmdb format.
 
 [CrossDock](https://doi.org/10.5281/zenodo.7980002) includes lmdb, lmdb-lock, name2id, split_by_name. 
 
-[BindingMoad](`https://doi.org/10.5281/zenodo.7980026`) includes lmdb, lmdb-lock, name2id, split_by_name. 
-
-
-
-## Suggest novel structures
-
-```python
-python -u delete.py --surf_path ./example/1bxm/1bxm_0_pocket_8.0_res_1.5.ply --frag_path ./example/1bxm/1bxm_0_1_frag.sdf --check_point ./checkpoint/crossdock_val_159.pt --outdir ./outputs --suboutdir my_name 
-# main parameters: 
-# --surf_path: the provided surface file
-# --frag_path: the lead waiting for optimization
-```
+[BindingMoad](https://doi.org/10.5281/zenodo.7980026) includes lmdb, lmdb-lock, name2id, split_by_name. 
 
 
 
