@@ -36,7 +36,7 @@ Please remember to replace "my case" with your actual username or replace it dep
 
 ## Suggest novel structures
 
-I have provided an example to suggest new structures using adbr1 example, use this command to generate 3D molecules given the protein and lead fragment! 
+I have provided an example to suggest new structures using adbr1 example, use this command to generate 3D molecules given the protein and lead fragment! The pretrained checkpoint could be downloaded [here](`https://doi.org/10.5281/zenodo.7985201`).
 
 ```python
 python -u delete.py --surf_path ./example/adrb1/adrb_pocket_8.0.ply --frag_path ./example/adrb1/2VT4_frag.sdf --check_point ./checkpoint/ckpt/delete.pt --outdir ./outputs --suboutdir adrb1
@@ -49,11 +49,11 @@ Here, I provide a famous drug-design example, the inhibitor for adrb1, which can
 
 <div align="center">
     <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_lig.png" alt="Image 1" style="width: 100%;">
+        <img src="./assets/adrb1_lig.png" alt="Image 1" style="width: 45%;">
         <figcaption>adrb1-cyanopindolol crystal structure</figcaption>
     </figure>
     <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_frag.png" alt="Image 2" style="width: 100%;">
+        <img src="./assets/adrb1_frag.png" alt="Image 2" style="width: 45%;">
         <figcaption>Deleted structure for fragment replacement</figcaption>
     </figure>
 </div>
