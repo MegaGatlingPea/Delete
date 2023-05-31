@@ -47,45 +47,20 @@ python -u delete.py --surf_path ./example/adrb1/adrb_pocket_8.0.ply --frag_path 
 
 Here, I provide a famous drug-design example, the inhibitor for adrb1, which can be used in the treatment of hypertension. The crystal structure of bounded cyanopindolol was selected as the reference ligand. Then we delete its heteroaromatic moiety, retaining solely the ethanolamine backbone as the foundation for Delete generation.
 
-<div align="center">
-    <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_lig.png" alt="Image 1" style="width: 30%;">
-        <figcaption>adrb1-cyanopindolol crystal structure</figcaption>
-    </figure>
-    <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_frag.png" alt="Image 2" style="width: 30%;">
-        <figcaption>Deleted structure for fragment replacement</figcaption>
-    </figure>
+<div align=center>
+<img src="./assets/initial.png" width="80%" height="80%" alt="TOC" align=center />
 </div>
-
-
 
 Using the above command for generation, about 100 structures are generated, and one of the generated samples successfully reproduces the cyanopindolol structure, both 2D chemical formula and 3D binding conformation. 
 
-<div align="center">
-    <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_lig.png" alt="Reference Ligand" style="width: 100%;">
-        <figcaption>Reference ligand</figcaption>
-    </figure>
-	<figure style="display: inline-block; width: 45%; text-align:center;">
-		<img src="./assets/adrb1_delete1.png" alt="Delete-Reproduce" style='width: 100%;'>
-        <figcaption>Reproduced Sample</figcaption>
-    </figure>
+<div align=center>
+<img src="./assets/reproduce.png" width="80%" height="80%" alt="TOC" align=center />
 </div>
-
-
 
  Besides, it also suggests several ligands that are potentially bound to the provided adrb1 structure. This example shows how powerful Delete can be, it fully considers the geometric and chemical environment of pockets. When you face some problems in drug discovery, just Delete!
 
-<div align="center">
-    <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_delete2.png" alt="Delete Sample" style="width: 100%;">
-        <figcaption>Generated molecule 1</figcaption>
-    </figure>
-	<figure style="display: inline-block; width: 45%; text-align:center;">
-		<img src="./assets/adrb1_delete3.png" alt="Delete Sample" style='width: 100%;'>
-        <figcaption>Generated molecule 2</figcaption>
-    </figure>
+<div align=center>
+<img src="./assets/compare.png" width="80%" height="80%" alt="TOC" align=center />
 </div>
 
 
