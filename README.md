@@ -49,14 +49,16 @@ Here, I provide a famous drug-design example, the inhibitor for adrb1, which can
 
 <div align="center">
     <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_lig.png" alt="Image 1" style="width: 40%;">
+        <img src="./assets/adrb1_lig.png" alt="Image 1" style="width: 30%;">
         <figcaption>adrb1-cyanopindolol crystal structure</figcaption>
     </figure>
     <figure style="display: inline-block; width: 45%; text-align: center;">
-        <img src="./assets/adrb1_frag.png" alt="Image 2" style="width: 40%;">
+        <img src="./assets/adrb1_frag.png" alt="Image 2" style="width: 30%;">
         <figcaption>Deleted structure for fragment replacement</figcaption>
     </figure>
 </div>
+
+
 
 Using the above command for generation, about 100 structures are generated, and one of the generated samples successfully reproduces the cyanopindolol structure, both 2D chemical formula and 3D binding conformation. 
 
