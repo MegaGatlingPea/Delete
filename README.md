@@ -22,7 +22,7 @@ Of note, the mamba could be replaced by conda.
 
 ### Second Approach 
 
-We also offer a Conda package for easy installation, which is available for download from [Zenodo](`https://doi.org/10.5281/zenodo.7980554`). After downloading, simply unzip the package in your conda environments directory. In my case, the directory is located at `~/.conda/envs`. We extend our sincere gratitude to the team at Zenodo, who provide a valuable free platform for storing large files for scholarly purposes.
+We also offer a Conda package for easy installation, which is available for download from [Zenodo](https://doi.org/10.5281/zenodo.7980554). After downloading, simply unzip the package in your conda environments directory. In my case, the directory is located at `~/.conda/envs`. We extend our sincere gratitude to the team at Zenodo, who provide a valuable free platform for storing large files for scholarly purposes.
 
 ```shell
 mkdir ~/.conda/envs/surfgen
@@ -93,7 +93,7 @@ python delete_train.py --config ./configs/train_{}.yml
 
 #### Approach 1
 
-Despite the fact that we've already prepared the necessary data for training and evaluation, you might want to utilize SurfGen for your specific use-case. To facilitate this, we've outlined guidelines to assist in creating your own 'surf_maker' environment.
+Despite the fact that we've already prepared the necessary data for training and evaluation, you might want to utilize SurfGen for your specific use case. To facilitate this, we've outlined guidelines to assist in creating your own 'surf_maker' environment.
 
 ```shell
 conda create -n surface pymesh2 jupyter scipy joblib biopython rdkit plyfile -c conda-forge
