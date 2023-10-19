@@ -106,11 +106,11 @@ if __name__ == '__main__':
         help='SDF file where all molecules are stored, it will saved at out_dir/frag_fn/sdf_filename'
     )
     parser.add_argument(
-        '--surf_path', type=str,default='./example/1bxm/1bxm_0_pocket_8.0_res_1.5.ply',
+        '--surf_path', type=str,default='./example/adrb1/adrb_pocket_8.0.ply',
         help='where prepared surface file locates'
     )
     parser.add_argument(
-        '--frag_path', type=str,default='./example/1bxm/1bxm_0_1_frag.sdf',
+        '--frag_path', type=str,default='./example/adrb1/2VT4_frag.sdf',
         help='where the fragment you want to kept locates, format is .sdf'
     )
 
