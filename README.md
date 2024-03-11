@@ -120,3 +120,9 @@ python ./data/surf_maker/surf_maker_test.py
 ```
 
 If the surface is generated, you will find the .ply file in the ./data/surf_maker
+
+
+
+## Cite
+
+Zhang, Haotian, et al. "Delete: Deep Lead Optimization Enveloped in Protein Pocket through Unified Deleting Strategies and a Structure-aware Network." *arXiv preprint arXiv:2308.02172* (2023).
