@@ -8,29 +8,46 @@
 
 ## Environment
 
-### First Approach
+### CUDA11.3: Install via conda .yml file
 
-Install via conda .yml file (cuda 11.3)
-
-```Shell
+```python
 conda install mamba
 mamba env create -f delete_environment.yml -n delete
-conda activate delete
+conda activate delete 
 ```
 
-Of note, the mamba could be replaced by conda.
+If you're reluctant to use mamba: 
 
-### Second Approach 
+```python
+conda env create -f delete_environment.yml -n delete
+```
 
-We also offer a Conda package for easy installation, which is available for download from [Zenodo](https://doi.org/10.5281/zenodo.7980554). After downloading, simply unzip the package in your conda environments directory. In my case, the directory is located at `~/.conda/envs`. We extend our sincere gratitude to the team at Zenodo, who provide a valuable free platform for storing large files for scholarly purposes.
+### CUDA11.3: Install via conda-pack file 
+
+We also provide conda-packed file [here](https://doi.org/10.5281/zenodo.7980554). Download it and then unzip it in your conda/envs/dir. For me, the directory is ~/.conda/envs. Special thanks to the creators and organizers of zenodo, which provides a free platform to store large files for academic use. 
 
 ```shell
-mkdir ~/.conda/envs/surfgen
+mkdir ~/.conda/envs/delete
 tar -xzvf delete.tar.gz -C ~/.conda/envs/delete
 conda activate delete
 ```
 
-Please remember to replace "my case" with your actual username or replace it depending on your requirements.
+### CUDA 12.1: Install manually
+
+Since Nvidia 40 series cards no longer support CUDA 11.3, I also created the SurfGen environment for an RTX-4080-powered linux system. 
+
+```shell
+mamba create -n delete pytorch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 pytorch-cuda=12.1 plyfile pyg rdkit biopython easydict jupyter ipykernel lmdb -c pytorch -c nvidia -c pyg -c conda-forge
+pip install lmdb
+pip install pyg_lib torch_scatter torch_sparse torch_cluster torch_spline_conv -f https://data.pyg.org/whl/torch-2.2.0+cu121.html
+```
+
+Note: PyG subgraph function has been put to another place, therefore, replace the following command at ./utils/transform.py
+
+```python
+# from torch_geometric.utils.subgraph import subgraph
+from torch_geometric.data.data import subgraph
+```
 
 
 
@@ -116,12 +133,33 @@ When the base python environment was created, then install [APBS-3.0.0](https://
 Having successfully set up all the necessary environments, you can now proceed to generate surface data. Please follow the instructions in `./data/surf_maker` for this process. Alternatively, to test the successful configuration of your environment, you can execute the `./data/surf_maker/surf_maker_test.py` script.
 
 ```shell
-python ./data/surf_maker/surf_maker_test.py
+from generate_prot_ply import compute_inp_surface
+# or from utils.generate_prot_ply import compute_inp_surface
+prot_path = './PLD-1/8k5n_protein.pdb'
+lig_path = './PLD-1/8k5n_ligand.sdf'
+compute_inp_surface(prot_path, lig_path)
+# It will take about 10s to compute a ply file in a single run. 
 ```
 
-If the surface is generated, you will find the .ply file in the ./data/surf_maker
+If you face the error: "**error while loading shared libraries: libTABIPBlib.so: cannot open shared object file: No such file or directory**". please add the following line to your ~/.bashrc file or directly add it to the os.environ. Then set the msms_bin, apbs_bin, pdb2pqr_bin, multivalue_bin to the correct path in your system 
+
+```python
+import os
+# change the path for your own path
+os.environ["LD_LIBRARY_PATH"] = '/home/haotian/Molecule_Generation/SurfBP/dataset/install_software/APBS-3.0.0.Linux/lib'
+msms_bin="/home/haotian/Molecule_Generation/SurfBP/dataset/install_software/APBS-3.0.0.Linux/bin/msms"
+apbs_bin = '/home/haotian/Molecule_Generation/SurfBP/dataset/install_software/APBS-3.0.0.Linux/bin/apbs'
+pdb2pqr_bin="/home/haotian/Molecule_Generation/SurfBP/dataset/install_software/pdb2pqr-linux-bin64-2.1.1/pdb2pqr"
+multivalue_bin="/home/haotian/Molecule_Generation/SurfBP/dataset/install_software/APBS-3.0.0.Linux/share/apbs/tools/bin/multivalue"
+```
 
 
+
+## Video Material 
+
+I also prepared a basic usage in [Chinese](https://meeting.tencent.com/v2/cloud-record/share?id=9ac8be7f-495d-4489-ab2a-53d413f17c0c&from=3&record_type=2). 
+
+The English version tutorial is coming soon. If you feel necessary, please reach out. 
 
 ## Cite
 
