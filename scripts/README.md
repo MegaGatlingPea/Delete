@@ -34,6 +34,12 @@ This folder contains scripts for processing and storing conformer datasets provi
      ```
      This step can skip the batch merging step.
 
+4. **Pretrain the model**
+    you may use the preprocessed data to train the model.
+    ```sh
+    ./pretrain.sh
+    ```
+  
 ## Script Descriptions
 
 - **xyz2sdf.sh**
@@ -63,6 +69,13 @@ This folder contains scripts for processing and storing conformer datasets provi
   --source_dir /path/to/your/lmdb_batches
   --target_path /path/to/your/combined/lmdb_file
   ```
+- **pretrain.sh**
+  Script to pretrain the model. More information can be found in yml file.
+  ```sh
+  python delete_pretrain.py 
+  --config ./../configs/pretrain_ligand.yml 
+  --logdir ./../logs
+  ```
 
 - **xyz2sdf.py**
   Python script to convert xyz files to sdf files, called by `xyz2sdf.sh`.
@@ -76,10 +89,15 @@ This folder contains scripts for processing and storing conformer datasets provi
 - **merge_lmdb.py**
   Python script to merge batch files generated from parallel processing, called by `merge_lmdb.sh`.
 
+- **delete_pretrain.py**
+  Python script to pretrain the model, called by `pretrain.sh`.
 ## Folder Structure
 ```sh
   - Delete/
       - other files/directories
+      - configs/
+          - *.yml
+      - logs/
       - scripts/
           - *.sh
           - *.py
