@@ -167,7 +167,7 @@ Zhang, Haotian, et al. "Delete: Deep Lead Optimization Enveloped in Protein Pock
 
 
 
-## Note
+## Common Issue
 
 For surface generation, a common error is:
 
