@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import numpy as np
 from torch_geometric.nn.pool import knn_graph
 from torch_geometric.transforms import Compose
-from torch_geometric.utils.subgraph import subgraph
+from torch_geometric.utils import subgraph
 from torch_geometric.nn import knn, radius
 from torch_geometric.utils.num_nodes import maybe_num_nodes
 from torch_scatter import scatter_add
@@ -36,6 +36,105 @@ except:
 import argparse
 import logging
 
+def k_nearest_neighbors(query_pos, all_pos, constraint_id=None, k_query=10):
+    """
+    Find the k-nearest neighbors for each query point in a subset of atoms.
+    - query_pos: (n_sample, 3) tensor of query positions
+    - all_pos: (n_constrained, 3) tensor of all atom positions
+    - constraint_id: (n_constrained) tensor of indices of constrained atoms
+    - k_query: number of neighbors to find
+    Returns:
+    - indices of k-nearest neighbors: (n_sample, k_query) tensor
+    - distances to k-nearest neighbors: (n_sample, k_query) tensor
+    """
+    # Select the atoms of interest using the constraint_id
+    if constraint_id is None:
+        constraint_id = torch.arange(all_pos.size(0), device=all_pos.device)
+    constrained_pos = all_pos[constraint_id]
+
+    # Calculate squared distances using broadcasting
+    # (n_sample, 1, 3) - (1, n_constrained, 3) -> (n_sample, n_constrained, 3)
+    diff = query_pos.unsqueeze(1) - constrained_pos.unsqueeze(0)
+    dist_squared = (diff ** 2).sum(dim=2)  # Sum over the coordinate dimension
+
+    # Get the k smallest distances and their indices for each query point
+    # We use k+1 here because topk includes the zero distance (self-neighbor) when query_pos is part of all_pos
+    distances, indices = torch.topk(dist_squared, k_query, largest=False, sorted=True)
+
+    # Return the indices within the constrained list and the square root of distances
+    # We need to map back the indices from the constrained subset to the original all_pos index
+    actual_indices = constraint_id[indices]
+    return actual_indices, torch.sqrt(distances)
+
+def neighbors_within_distance(query_pos, all_pos, constraint_id=None, distance_threshold=5.0):
+    """
+    Find the neighbors within a distance threshold for each query point in a subset of atoms.
+    - query_pos: (n_sample, 3) tensor of query positions
+    - all_pos: (n_constrained, 3) tensor of all atom positions
+    - constraint_id: (n_constrained) tensor of indices of constrained atoms
+    - distance_threshold: maximum distance to consider a neighbor
+    Returns:
+    - indices of neighbors within distance: list of (n_neighbors) tensors
+    - distances to neighbors within distance: list of (n_neighbors) tensors
+    """
+    # Select the atoms of interest using the constraint_id
+    if constraint_id is None:
+        constraint_id = torch.arange(all_pos.size(0), device=all_pos.device)
+        
+    constrained_pos = all_pos[constraint_id]
+
+    # Calculate squared distances using broadcasting
+    # (n_sample, 1, 3) - (1, n_constrained, 3) -> (n_sample, n_constrained, 3)
+    diff = query_pos.unsqueeze(1) - constrained_pos.unsqueeze(0)
+    dist_squared = (diff ** 2).sum(dim=2)  # Sum over the coordinate dimension
+
+    # Apply the distance threshold
+    # Convert distance_threshold to squared distance to use with our squared distances
+    threshold_squared = distance_threshold ** 2
+    within_threshold = dist_squared <= threshold_squared
+
+    # Gather indices and distances for those within the threshold
+    indices = []
+    distances = []
+    for i in range(query_pos.size(0)):
+        mask = within_threshold[i]
+        indices.append(constraint_id[mask])
+        distances.append(torch.sqrt(dist_squared[i][mask]))
+
+    return indices, distances
+
+def compress_relations(index_lists, distance_lists):
+    # Flatten the index and distance lists into single tensors
+    flat_indices = torch.cat(index_lists)
+    flat_distances = torch.cat(distance_lists)
+
+    # Prepare to create the mask indicating group number
+    lengths = [len(indices) for indices in index_lists]
+    mask = torch.zeros_like(flat_indices, dtype=torch.long)  # Start with zeros
+
+    # Iterate over the lengths and assign group numbers
+    current_group = 0
+    idx = 0
+    for length in lengths:
+        mask[idx:idx + length] = current_group
+        idx += length
+        current_group += 1  # Increment the group number for the next group
+
+    return flat_indices, flat_distances, mask
+
+class Protein_ligand_relation(object):
+    def __init__(self):
+        super().__init__()
+        self.cutoff = 8.0 
+        # Hydrogen bond interaction: 3.5-4.0 A
+        # Van der Waals interaction: 4.0-6.0 A
+        # Electrostatic interaction: 6.0-8.0 A
+
+    def __call__(self, data):
+        protein_ligand_relation_idx, protein_ligand_relation_dist = neighbors_within_distance(data['pos_generate'], data['compose_pos'], data['idx_protein_in_compose'], self.cutoff)
+        data.pl_relation_idx, data.pl_relation_dist, data.pl_relation_mask = compress_relations(protein_ligand_relation_idx, protein_ligand_relation_dist)
+        return data
+    
 class RefineData(object):
     def __init__(self):
         super().__init__()
@@ -1031,7 +1130,7 @@ class EdgeSample(object):
         context_idx = data.context_idx
         masked_idx = data.masked_idx
         old_bond_index = data.ligand_bond_index
-        old_bond_types = data.ligand_bond_type  # type: 0, 1, 2
+        old_bond_types = data.ligand_bond_type  
         
         # candidate edge: mask-contex edge
         idx_edge_index_candidate = [
