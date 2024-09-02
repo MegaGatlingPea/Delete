@@ -45,7 +45,7 @@ if __name__ == '__main__':
     logger.info(args)
     logger.info(config)
     shutil.copyfile(args.config, os.path.join(log_dir, os.path.basename(args.config)))
-    shutil.copytree('./models', os.path.join(log_dir, 'models'))
+    shutil.copytree('./../models', os.path.join(log_dir, 'models'))
 
     protein_featurizer = FeaturizeProteinAtom()
     ligand_featurizer = FeaturizeLigandAtom()                   
@@ -166,14 +166,14 @@ if __name__ == '__main__':
             for batch in train_loader:
                 batch_cnt+=1
                 batch = batch.to(args.device)
-                loss, loss_frontier, loss_pos, loss_cls, loss_edge, loss_real, loss_fake, loss_surf, loss_steric = get_model_loss(model, batch, config )
+                loss, loss_frontier, loss_pos, loss_cls, loss_edge, loss_real, loss_fake, loss_surf = get_model_loss(model, batch, config)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
                 batch_losses.append(loss.item())
                 if (batch_cnt <= 10) and epoch == 0 : #epoch==0 and 
-                    logger.info('Training Epoch %d | Step %d | Loss %.6f | Loss(Fron) %.6f | Loss(Pos) %.6f | Loss(Cls) %.6f | Loss(Edge) %.6f | Loss(Real) %.6f | Loss(Fake) %.6f | Loss(Surf) %.6f | Loss(Steric) %.6f' % (
-                            epoch+start_epoch, batch_cnt, loss.item(), loss_frontier.item(), loss_pos.item(), loss_cls.item(), loss_edge.item(), loss_real.item(), loss_fake.item(), loss_surf.item(), loss_steric.item()
+                    logger.info('Training Epoch %d | Step %d | Loss %.6f | Loss(Fron) %.6f | Loss(Pos) %.6f | Loss(Cls) %.6f | Loss(Edge) %.6f | Loss(Real) %.6f | Loss(Fake) %.6f | Loss(Surf) %.6f' % (
+                            epoch+start_epoch, batch_cnt, loss.item(), loss_frontier.item(), loss_pos.item(), loss_cls.item(), loss_edge.item(), loss_real.item(), loss_fake.item(), loss_surf.item()
                             ))
             average_loss = sum(batch_losses) / (len(batch_losses)+1)
             train_losses.append(average_loss)

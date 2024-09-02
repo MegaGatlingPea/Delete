@@ -69,4 +69,4 @@ train:
 
 
 dataset:
-  path: ./data/ligand_pretrain_187w.lmdb
+  path: /home/megagatlingpea/workdir/Delete_all/Delete/data/ligand_pretrain_187w.lmdb
