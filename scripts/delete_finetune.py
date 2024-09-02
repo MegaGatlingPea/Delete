@@ -1,10 +1,15 @@
 import os
+import sys
 import shutil
 import argparse
 from tqdm.auto import tqdm
 import torch
 from torch.nn.utils import clip_grad_norm_
 from torch_geometric.loader import DataLoader
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(root_dir)
 
 from models.delete import Delete
 from utils.datasets import *
@@ -14,6 +19,8 @@ from utils.train import *
 from time import time
 from utils.train import get_model_loss
 from utils.datasets.pl import SurfLigandPairDataset
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--config', type=str, default='./configs/train_frag_moad.yml')
@@ -27,13 +34,13 @@ config_name = os.path.basename(args.config)[:os.path.basename(args.config).rfind
 seed_all(config.train.seed)
 
 log_dir = get_new_log_dir(args.logdir, prefix=config_name)
-ckpt_dir = os.path.join(log_dir, 'checkpoints')
+ckpt_dir = os.path.join(log_dir, 'ckpts_finetune')
 os.makedirs(ckpt_dir, exist_ok=True)
 logger = get_logger('train', log_dir)
 logger.info(args)
 logger.info(config)
 shutil.copyfile(args.config, os.path.join(log_dir, os.path.basename(args.config)))
-shutil.copytree('./models', os.path.join(log_dir, 'models'))
+shutil.copytree('./../models', os.path.join(log_dir, 'models'))
 
 protein_featurizer = FeaturizeProteinAtom()
 ligand_featurizer = FeaturizeLigandAtom()                   
@@ -85,8 +92,8 @@ dataset, subsets = get_dataset(
 train_set, val_set = subsets['train'], subsets['test']
 follow_batch = []
 collate_exclude_keys = ['ligand_nbh_list']
-val_loader = DataLoader(val_set, config.train.batch_size, shuffle=False, follow_batch=follow_batch, exclude_keys = collate_exclude_keys,)
-train_loader = DataLoader(train_set, config.train.batch_size, shuffle=False, exclude_keys = collate_exclude_keys)
+val_loader = DataLoader(val_set, config.train.batch_size, shuffle=False, follow_batch=follow_batch, exclude_keys = collate_exclude_keys, num_workers=config.train.num_workers,pin_memory=config.train.pin_memory)
+train_loader = DataLoader(train_set, config.train.batch_size, shuffle=False, exclude_keys = collate_exclude_keys, num_workers=config.train.num_workers,pin_memory=config.train.pin_memory)
 
 model = Delete(
     config.model, 

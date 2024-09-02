@@ -81,8 +81,8 @@ if __name__ == '__main__':
 
     follow_batch = []
     collate_exclude_keys = ['ligand_nbh_list']
-    val_loader = DataLoader(val_set, config.train.batch_size, shuffle=False, follow_batch=follow_batch, exclude_keys = collate_exclude_keys,)
-    train_loader = DataLoader(train_set, config.train.batch_size, shuffle=False,  exclude_keys = collate_exclude_keys)
+    val_loader = DataLoader(val_set, config.train.batch_size, shuffle=False, follow_batch=follow_batch, exclude_keys = collate_exclude_keys, num_workers=config.train.num_workers,pin_memory=config.train.pin_memory)
+    train_loader = DataLoader(train_set, config.train.batch_size, shuffle=False, exclude_keys = collate_exclude_keys, num_workers=config.train.num_workers,pin_memory=config.train.pin_memory)
 
     model = Delete(
         config.model, 
